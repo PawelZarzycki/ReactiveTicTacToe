@@ -1,20 +1,17 @@
 package io.bkraszewski.reactivetictactoe.game
 
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockito_kotlin.*
 import io.bkraszewski.reactivetictactoe.model.Game
 import io.bkraszewski.reactivetictactoe.model.GameState
 import io.bkraszewski.reactivetictactoe.model.Player
+import io.bkraszewski.reactivetictactoe.model.Symbol
 import io.bkraszewski.reactivetictactoe.service.GameService
 import io.bkraszewski.reactivetictactoe.service.PlayerService
 import io.reactivex.Observable
 import io.reactivex.Single
-import io.reactivex.subjects.SingleSubject
+import io.reactivex.subjects.PublishSubject
 import org.junit.Before
 import org.junit.Test
-import org.mockito.ArgumentMatchers
 
 
 class GamePresenterTest {
@@ -60,8 +57,8 @@ class GamePresenterTest {
     }
 
     @Test
-    fun shoudJoinGame(){
-        val game = Game("123","Test", null, 0, IntRange(0, 8).associateBy({ it }, { "" }))
+    fun shoudJoinGame() {
+        val game = Game("123", "Test", null, 0, IntRange(0, 8).associateBy({ it }, { "" }))
         whenever(gameService.joinGame(any())).thenReturn(Single.never())
 
         cut.onJoinGame(game)
@@ -71,8 +68,8 @@ class GamePresenterTest {
     }
 
     @Test
-    fun shouldSubscribeForTurnChangeOnJoin(){
-        val game = Game("123","Test", null, 0, IntRange(0, 8).associateBy({ it }, { "" }))
+    fun shouldSubscribeForTurnChangeOnJoin() {
+        val game = Game("123", "Test", null, 0, IntRange(0, 8).associateBy({ it }, { "" }))
         whenever(gameService.joinGame(any())).thenReturn(Single.just(game))
         whenever(gameService.subscribeToGameUpdate(any())).thenReturn(Observable.empty())
 
@@ -81,14 +78,62 @@ class GamePresenterTest {
         verify(gameService).subscribeToGameUpdate(game.id)
     }
 
+    @Test
+    fun shouldEnableBoardOnUserTurn() {
+        val subject = PublishSubject.create<Game>()
+        val game = Game("123", "Tester", "Other Player", 0, emptyBoardAsMap())
+        whenever(gameService.subscribeToGameUpdate(any())).thenReturn(subject)
+        whenever(gameService.createGame(any())).thenReturn(Single.just(game))
+
+        whenever(playerService.provide()).thenReturn(Player("test"))
+
+        cut.onCreateGame()
+        subject.onNext(game)
+
+        verify(view, atLeastOnce()).setState(GameState.GAME_RUNNING)
+        verify(view).setTurn("Tester")
+        verify(view, atLeastOnce()).enableBoard(true)
+    }
+
+    @Test
+    fun shouldRenderUiForOpponentTurn(){
+        val game = Game("123", "Tester", "Other Player", 1, emptyBoardAsMap())
+
+        cut.onGameUpdate(game)
+
+        verify(view).setTurn("Other Player")
+        verify(view, atLeastOnce()).enableBoard(false)
+    }
+
+    @Test
+    fun shouldRenderUiForMyTurnAfterFewMoves(){
+        val map= emptyBoardAsMap().toMutableMap()
+        map[0] = Symbol.Os
+        map[3] = Symbol.CROSS
+        map[6] = Symbol.Os
+        map[7] = Symbol.CROSS
+
+        val game = Game("123", "Tester", "Other Player", 0, emptyBoardAsMap())
+
+        cut.onGameUpdate(game)
+
+        verify(view, atLeastOnce()).setState(GameState.GAME_RUNNING)
+        verify(view).setTurn("Tester")
+        verify(view, atLeastOnce()).enableBoard(true)
+    }
+
     private fun setupMockedGameCreation(): Game {
-        val game = Game("123","Test", null, 0, IntRange(0, 8).associateBy({ it }, { "" }))
+        val game = Game("123", "Test", null, 0, IntRange(0, 8).associateBy({ it }, { "" }))
         whenever(gameService.createGame(any())).thenReturn(Single.just(game))
         return game
     }
 
     private fun emptyBoard(): List<String> {
         return IntRange(0, 8).map { "" }
+    }
+
+    private fun emptyBoardAsMap(): Map<Int, String> {
+        return IntRange(0,8).associateBy({it}, {""})
     }
 
 }

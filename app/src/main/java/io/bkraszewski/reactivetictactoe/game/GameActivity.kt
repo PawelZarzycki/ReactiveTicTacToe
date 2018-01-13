@@ -10,9 +10,15 @@ import io.bkraszewski.reactivetictactoe.service.DI
 import kotlinx.android.synthetic.main.activity_game.*
 
 class GameActivity : AppCompatActivity(), GameContract.View {
+    override fun setTurn(player: String) {
+
+    }
+
     override fun setState(state: GameState) {
         when (state) {
             GameState.WAITING_FOR_OPONENT -> gameStatus.text = "Waiting for Oponent"
+            GameState.CONNECTING -> gameStatus.text = "Connecting..."
+            GameState.GAME_RUNNING -> gameStatus.text = "Game Running"
         }
     }
 
@@ -21,6 +27,7 @@ class GameActivity : AppCompatActivity(), GameContract.View {
     }
 
     override fun showTurn(player: String) {
+        actionBar?.title = "Player's turn: $player"
     }
 
     override fun enableBoard(enabled: Boolean) {

@@ -12,6 +12,9 @@ interface GameContract {
 
         companion object {
             val NULL = object : View {
+                override fun setTurn(player: String) {
+                }
+
                 override fun setState(state: GameState) {
                 }
 
@@ -27,6 +30,7 @@ interface GameContract {
         }
 
         fun setState(state: GameState)
+        fun setTurn(player: String)
     }
 
     interface Presenter : BasePresenter {
