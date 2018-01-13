@@ -9,4 +9,5 @@ interface GameService {
     fun createGame(host: Player): Single<Game>
     fun subscribeToGameUpdate(gameId: String): Observable<Game>
     fun joinGame(game: Game):Single<Game>
+    fun updateGame(game: Game)
 }

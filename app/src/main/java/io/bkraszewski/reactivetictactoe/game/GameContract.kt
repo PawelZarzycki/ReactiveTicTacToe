@@ -36,5 +36,6 @@ interface GameContract {
     interface Presenter : BasePresenter {
         fun onCreateGame()
         fun onJoinGame(game: Game)
+        fun onMove(fieldIndex: Int)
     }
 }

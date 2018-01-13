@@ -58,7 +58,7 @@ class GamePresenterTest {
 
     @Test
     fun shoudJoinGame() {
-        val game = Game("123", "Test", null, 0, IntRange(0, 8).associateBy({ it }, { "" }))
+        val game = Game("123", "Test", null, 0, IntRange(0, 8).associateBy({ it }, { "" }).toMutableMap())
         whenever(gameService.joinGame(any())).thenReturn(Single.never())
 
         cut.onJoinGame(game)
@@ -69,7 +69,7 @@ class GamePresenterTest {
 
     @Test
     fun shouldSubscribeForTurnChangeOnJoin() {
-        val game = Game("123", "Test", null, 0, IntRange(0, 8).associateBy({ it }, { "" }))
+        val game = Game("123", "Test", null, 0, IntRange(0, 8).associateBy({ it }, { "" }).toMutableMap())
         whenever(gameService.joinGame(any())).thenReturn(Single.just(game))
         whenever(gameService.subscribeToGameUpdate(any())).thenReturn(Observable.empty())
 
@@ -122,8 +122,25 @@ class GamePresenterTest {
         verify(view, atLeastOnce()).enableBoard(true)
     }
 
+    @Test
+    fun shouldRenderUiForSelectingFirstUserMove(){
+        val game = Game("123", "Tester", "Other Player", 0, emptyBoardAsMap())
+        cut.onGameUpdate(game)
+
+        cut.onMove(0)
+
+        verify(view).enableBoard(false)
+
+        val board = IntRange(0, 8).map { "" }.toMutableList()
+        board[0] = Symbol.CROSS
+
+        verify(view).renderBoard(board)
+        verify(view).enableBoard(false)
+        verify(view).setTurn("Other Player")
+    }
+
     private fun setupMockedGameCreation(): Game {
-        val game = Game("123", "Test", null, 0, IntRange(0, 8).associateBy({ it }, { "" }))
+        val game = Game("123", "Test", null, 0, emptyBoardAsMap())
         whenever(gameService.createGame(any())).thenReturn(Single.just(game))
         return game
     }
@@ -132,8 +149,8 @@ class GamePresenterTest {
         return IntRange(0, 8).map { "" }
     }
 
-    private fun emptyBoardAsMap(): Map<Int, String> {
-        return IntRange(0,8).associateBy({it}, {""})
+    private fun emptyBoardAsMap(): MutableMap<Int, String> {
+        return IntRange(0,8).associateBy({it}, {""}).toMutableMap()
     }
 
 }
