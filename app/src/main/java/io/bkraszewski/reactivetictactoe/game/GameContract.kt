@@ -1,6 +1,8 @@
 package io.bkraszewski.reactivetictactoe.game
 
 import io.bkraszewski.reactivetictactoe.base.BasePresenter
+import io.bkraszewski.reactivetictactoe.model.Game
+import io.bkraszewski.reactivetictactoe.model.GameState
 
 interface GameContract {
     interface View {
@@ -10,6 +12,9 @@ interface GameContract {
 
         companion object {
             val NULL = object : View {
+                override fun setState(state: GameState) {
+                }
+
                 override fun renderBoard(board: List<String>) {
                 }
 
@@ -20,9 +25,12 @@ interface GameContract {
                 }
             }
         }
+
+        fun setState(state: GameState)
     }
 
     interface Presenter : BasePresenter {
-        fun onBoardChecked(index: Int)
+        fun onCreateGame()
+        fun onJoinGame(game: Game)
     }
 }

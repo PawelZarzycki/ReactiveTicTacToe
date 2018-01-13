@@ -9,7 +9,7 @@ import io.bkraszewski.reactivetictactoe.R
 import io.bkraszewski.reactivetictactoe.game.GameContract
 import kotlinx.android.synthetic.main.item_board.view.*
 
-class BoardAdapter(val items: List<String>, val context: Context) : RecyclerView.Adapter<BoardAdapter.BoardViewHolder>(){
+class BoardAdapter(var items: List<String>, val context: Context) : RecyclerView.Adapter<BoardAdapter.BoardViewHolder>(){
     override fun getItemCount(): Int {
         return items.size
     }
@@ -25,5 +25,10 @@ class BoardAdapter(val items: List<String>, val context: Context) : RecyclerView
 
     class BoardViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val textView = view.itemBoardText
+    }
+
+    fun update(board: List<String>) {
+        items = board
+        notifyDataSetChanged()
     }
 }
