@@ -4,12 +4,12 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import io.bkraszewski.reactivetictactoe.R
+import io.bkraszewski.reactivetictactoe.game.GameActivity
 import io.bkraszewski.reactivetictactoe.model.Game
 import kotlinx.android.synthetic.main.activity_list.*
 import kotlinx.android.synthetic.main.content_list.*
 
 class ListActivity : AppCompatActivity(), ListContract.View {
-
 
     private lateinit var presenter: ListPresenter
 
@@ -34,4 +34,8 @@ class ListActivity : AppCompatActivity(), ListContract.View {
         adapter.notifyDataSetChanged()
     }
 
+
+    override fun navigateToNewGame(mode: Int, game: Game?) {
+        GameActivity.start(this, mode, game)
+    }
 }

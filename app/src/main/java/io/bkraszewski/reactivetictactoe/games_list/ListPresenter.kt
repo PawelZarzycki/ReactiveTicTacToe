@@ -1,5 +1,6 @@
 package io.bkraszewski.reactivetictactoe.games_list
 
+import io.bkraszewski.reactivetictactoe.game.GameActivity
 import io.bkraszewski.reactivetictactoe.model.Game
 import io.bkraszewski.reactivetictactoe.service.DI
 import io.bkraszewski.reactivetictactoe.service.GameService
@@ -22,9 +23,11 @@ class ListPresenter(var view: ListContract.View, private val service: GameServic
     }
 
     override fun onCreateGame() {
+        view.navigateToNewGame(GameActivity.MODE_CREATE)
     }
 
     override fun onJoinGame(game: Game) {
+        view.navigateToNewGame(GameActivity.MODE_JOIN, game)
     }
 
 }
